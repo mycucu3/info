@@ -36,12 +36,26 @@ def load_config() -> dict:
 def fetch_url(url: str, timeout: int = 20) -> bytes:
     req = urllib.request.Request(
         url,
-        headers={
-            "User-Agent": "ai-coding-news-radar/1.0 (+https://github.com/)",
-        },
+        headers={"User-Agent": "ai-coding-news-radar/1.1 (+https://github.com/)"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as response:
         return response.read()
+
+
+def post_json(url: str, payload: dict, timeout: int = 20) -> dict:
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": "ai-coding-news-radar/1.1 (+https://github.com/)",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        body = response.read().decode("utf-8")
+    return json.loads(body) if body else {}
 
 
 def parse_datetime(value: str | None) -> datetime | None:
@@ -71,8 +85,7 @@ def google_news_rss(query: str) -> list[NewsItem]:
             "ceid": "US:en",
         }
     )
-    url = f"https://news.google.com/rss/search?{params}"
-    raw = fetch_url(url)
+    raw = fetch_url(f"https://news.google.com/rss/search?{params}")
     root = ET.fromstring(raw)
     items: list[NewsItem] = []
 
@@ -89,15 +102,8 @@ def google_news_rss(query: str) -> list[NewsItem]:
 
 
 def hacker_news_search(query: str) -> list[NewsItem]:
-    params = urllib.parse.urlencode(
-        {
-            "query": query,
-            "tags": "story",
-            "hitsPerPage": 10,
-        }
-    )
-    url = f"https://hn.algolia.com/api/v1/search_by_date?{params}"
-    data = json.loads(fetch_url(url).decode("utf-8"))
+    params = urllib.parse.urlencode({"query": query, "tags": "story", "hitsPerPage": 10})
+    data = json.loads(fetch_url(f"https://hn.algolia.com/api/v1/search_by_date?{params}").decode("utf-8"))
     items: list[NewsItem] = []
 
     for hit in data.get("hits", []):
@@ -151,23 +157,21 @@ def score_item(item: NewsItem, config: dict) -> int:
         elif age_hours <= 168:
             score += 8
 
-    if item.source.lower() in {"openai", "github blog", "anthropic", "microsoft", "google developers"}:
+    source = item.source.lower()
+    if source in {"openai", "github blog", "anthropic", "microsoft", "google developers"}:
         score += 20
-    elif item.source.lower() in {"techcrunch", "the verge", "reuters", "axios", "arstechnica", "wired"}:
+    elif source in {"techcrunch", "the verge", "reuters", "axios", "arstechnica", "wired"}:
         score += 14
     elif item.source == "Hacker News":
         score += 10
-        if "points" in item.summary:
-            score += 5
 
     return min(score, 100)
 
 
 def collect_news(config: dict) -> list[NewsItem]:
     candidates: list[NewsItem] = []
-    queries = config.get("queries", [])
 
-    for query in queries:
+    for query in config.get("queries", []):
         try:
             candidates.extend(google_news_rss(query))
         except Exception as exc:
@@ -195,10 +199,18 @@ def format_date(value: datetime | None) -> str:
     return value.astimezone(timezone.utc).strftime("%Y-%m-%d")
 
 
+def clean_summary(item: NewsItem) -> str:
+    summary = html.unescape(item.summary or "").replace("\n", " ")
+    summary = " ".join(summary.split())
+    if not summary:
+        return "该事件在多个 AI coding/科技新闻查询中出现。"
+    return textwrap.shorten(summary, width=180, placeholder="...")
+
+
 def build_report(items: list[NewsItem]) -> str:
     today = datetime.now().strftime("%Y-%m-%d")
     lines = [
-        f"# AI Coding 与科技新闻雷达",
+        "# AI Coding 与科技新闻雷达",
         f"日期：{today}",
         "",
         "## 今日最值得看",
@@ -209,7 +221,7 @@ def build_report(items: list[NewsItem]) -> str:
             [
                 f"{idx}. {item.title}",
                 f"   - 发生了什么：{clean_summary(item)}",
-                f"   - 为什么重要：可能影响 AI coding 工具选择、开发者工作流、团队自动化或技术决策。",
+                "   - 为什么重要：可能影响 AI coding 工具选择、开发者工作流、团队自动化或技术决策。",
                 f"   - 热度分：{item.score}/100",
                 f"   - 来源：{item.source}，{format_date(item.published)}",
                 f"   - 链接：{item.link}",
@@ -232,19 +244,14 @@ def build_report(items: list[NewsItem]) -> str:
     return "\n".join(lines)
 
 
-def clean_summary(item: NewsItem) -> str:
-    summary = html.unescape(item.summary or "").replace("\n", " ")
-    summary = " ".join(summary.split())
-    if not summary:
-        return "该事件在多个 AI coding/科技新闻查询中出现。"
-    return textwrap.shorten(summary, width=180, placeholder="...")
+def has_email_config() -> bool:
+    required = ["SMTP_HOST", "SMTP_PORT", "SMTP_USERNAME", "SMTP_PASSWORD", "EMAIL_FROM", "EMAIL_TO"]
+    return all(os.environ.get(name) for name in required)
 
 
 def send_email(subject: str, body: str) -> None:
-    required = ["SMTP_HOST", "SMTP_PORT", "SMTP_USERNAME", "SMTP_PASSWORD", "EMAIL_FROM", "EMAIL_TO"]
-    missing = [name for name in required if not os.environ.get(name)]
-    if missing:
-        raise RuntimeError(f"Missing email environment variables: {', '.join(missing)}")
+    if not has_email_config():
+        raise RuntimeError("Email is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, EMAIL_FROM, EMAIL_TO.")
 
     msg = EmailMessage()
     msg["Subject"] = subject
@@ -252,17 +259,39 @@ def send_email(subject: str, body: str) -> None:
     msg["To"] = os.environ["EMAIL_TO"]
     msg.set_content(body)
 
-    host = os.environ["SMTP_HOST"]
-    port = int(os.environ["SMTP_PORT"])
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL(host, port, context=context) as server:
+    with smtplib.SMTP_SSL(os.environ["SMTP_HOST"], int(os.environ["SMTP_PORT"]), context=context) as server:
         server.login(os.environ["SMTP_USERNAME"], os.environ["SMTP_PASSWORD"])
         server.send_message(msg)
 
 
+def has_wechat_config() -> bool:
+    return bool(os.environ.get("WECHAT_WEBHOOK_URL"))
+
+
+def send_wechat(subject: str, body: str) -> None:
+    webhook_url = os.environ.get("WECHAT_WEBHOOK_URL")
+    if not webhook_url:
+        raise RuntimeError("WeChat is not configured. Set WECHAT_WEBHOOK_URL.")
+
+    content = f"**{subject}**\n\n{body}"
+    if len(content) > 3900:
+        content = content[:3850] + "\n\n...内容过长，已截断。"
+
+    result = post_json(
+        webhook_url,
+        {
+            "msgtype": "markdown",
+            "markdown": {"content": content},
+        },
+    )
+    if result.get("errcode", 0) != 0:
+        raise RuntimeError(f"WeChat webhook failed: {result}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dry-run", action="store_true", help="Print the report instead of sending email.")
+    parser.add_argument("--dry-run", action="store_true", help="Print the report instead of sending.")
     args = parser.parse_args()
 
     config = load_config()
@@ -272,9 +301,20 @@ def main() -> None:
 
     if args.dry_run:
         print(report)
-    else:
+        return
+
+    sent_to: list[str] = []
+    if has_wechat_config():
+        send_wechat(subject, report)
+        sent_to.append("WeChat")
+    if has_email_config():
         send_email(subject, report)
-        print(f"Sent report with {len(items)} items.")
+        sent_to.append("email")
+
+    if not sent_to:
+        raise RuntimeError("No delivery channel configured. Set WECHAT_WEBHOOK_URL or full SMTP email secrets.")
+
+    print(f"Sent report with {len(items)} items to {', '.join(sent_to)}.")
 
 
 if __name__ == "__main__":
