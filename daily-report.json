@@ -1,0 +1,119 @@
+{
+  "date": "2026-05-18",
+  "window": "最近 72 小时",
+  "title": "AI Coding 进入移动端、桌面端与成本战争",
+  "summary": "今天的核心信号不是某个模型又会写更多代码，而是 coding agent 正在进入手机、桌面控制台、企业采购和成本治理。行业正在从“能不能生成代码”转向“谁能管住 agent、谁能付得起 agent”。",
+  "signals": [
+    {
+      "label": "产品形态",
+      "text": "Codex 进入 ChatGPT 手机端，GitHub 推出 Copilot 桌面 App，coding agent 正从 IDE 插件变成跨设备任务控制台。"
+    },
+    {
+      "label": "商业压力",
+      "text": "OpenClaw 30 天 130 万美元 token 消耗把 agent 经济账摊开了，订阅制和 API 计费都被推到压力测试区。"
+    },
+    {
+      "label": "平台竞争",
+      "text": "Microsoft 内部转向 GitHub Copilot CLI 的传闻说明，大厂会优先把开发者工作流锁回自家 agent 平台。"
+    }
+  ],
+  "briefs": [
+    {
+      "title": "OpenAI 把 Codex 带到 ChatGPT 手机端，coding agent 开始远程化",
+      "score": 94,
+      "source": "TechCrunch / Axios",
+      "date": "2026-05-14",
+      "category": "agent",
+      "tags": ["Codex", "Mobile", "OpenAI"],
+      "summary": "OpenAI 表示 Codex 将进入 ChatGPT 移动 App，用户可以在手机上查看、监督和推进 coding agent 任务。这意味着 agent 不再只绑定桌面 IDE，而是开始变成可随时介入的异步研发任务流。",
+      "impact": "开发者可以把修 bug、改 PR、跑测试这类任务交给云端 agent，再用手机做状态检查和轻量决策。对团队来说，这会改变研发任务分派和 review 节奏。",
+      "action": "建议关注移动端能否查看 diff、测试结果、权限请求和失败回滚。如果只支持通知而不能做有效审查，实际生产价值会打折。",
+      "url": "https://techcrunch.com/2026/05/14/openai-says-codex-is-coming-to-your-phone/"
+    },
+    {
+      "title": "GitHub Copilot App 技术预览上线，GitHub 想做 agent 桌面控制台",
+      "score": 91,
+      "source": "GitHub Changelog",
+      "date": "2026-05-14",
+      "category": "platform",
+      "tags": ["GitHub", "Copilot", "Desktop"],
+      "summary": "GitHub 发布 Copilot App 技术预览，定位是 GitHub-native 的桌面体验，用来从当前工作启动 agentic development、隔离任务、持续引导，并通过 PR review 落地变更。",
+      "impact": "GitHub 正把 coding agent 从 VS Code 插件和命令行拉到独立桌面端，核心入口会更接近 Issue、PR、仓库和团队协作，而不是单个编辑器。",
+      "action": "如果团队已经重度依赖 GitHub，可以优先观察 Copilot App 对 PR、权限策略、CLI policy 和企业预览开关的支持程度。",
+      "url": "https://github.blog/changelog/2026-05-14-github-copilot-app-is-now-available-in-technical-preview/"
+    },
+    {
+      "title": "OpenClaw 30 天烧掉 130 万美元 OpenAI token，agent 成本问题被打到台前",
+      "score": 96,
+      "source": "Tom's Hardware",
+      "date": "2026-05-17",
+      "category": "risk",
+      "tags": ["Cost", "Token", "OpenClaw"],
+      "summary": "OpenClaw 作者 Peter Steinberger 展示的用量截图显示，约 100 个 Codex 实例在 30 天内消耗约 130 万美元 OpenAI API 费用，覆盖 6030 亿 token 和 760 万次请求。",
+      "impact": "这条新闻把 coding agent 的商业化核心矛盾暴露出来：人类订阅制可以限速，但自动化 agent 可以持续消耗算力。团队试点时若没有预算、限额和任务粒度控制，很容易成本失控。",
+      "action": "建议所有 agent 试点都设置项目级 token 上限、单任务预算、失败重试上限和日报级成本复盘。公众号可重点写“AI 写代码不是免费劳动力”。",
+      "url": "https://www.tomshardware.com/tech-industry/artificial-intelligence/openclaw-creator-burns-through-1-3-million-in-openai-api-tokens-in-a-single-month"
+    },
+    {
+      "title": "Microsoft 被曝取消 Claude Code 许可，内部推动 GitHub Copilot CLI",
+      "score": 88,
+      "source": "Windows Central / TechRadar",
+      "date": "2026-05-15",
+      "category": "platform",
+      "tags": ["Microsoft", "Claude Code", "Copilot CLI"],
+      "summary": "多家媒体称 Microsoft 正减少内部 Claude Code 使用，并引导开发者转向 GitHub Copilot CLI。这不是单纯工具替换，更像是平台方把研发工作流收回自家生态。",
+      "impact": "企业采购 AI coding 工具时，会同时面对工具质量、供应商绑定、内部合规和预算控制。多模型并存的策略可能会被平台政策和财务压力重新洗牌。",
+      "action": "建议技术管理者避免把工作流绑定在单一厂商的黑盒 agent 上，保留 CLI、仓库权限和测试流程的可替换层。",
+      "url": "https://www.windowscentral.com/microsoft/microsoft-cancels-claude-code-licenses-shifting-developers-to-github-copilot-cli-a-move-likely-driven-by-financial-motives"
+    },
+    {
+      "title": "Anthropic 收紧 Claude 用量，OpenAI 用免费 Codex 抢企业用户",
+      "score": 84,
+      "source": "Axios",
+      "date": "2026-05-14",
+      "category": "risk",
+      "tags": ["Pricing", "Claude", "Codex"],
+      "summary": "Axios 报道称 Anthropic 对付费 Claude 用户的外部 agent 工具使用加入单独 credit meter，而 OpenAI 则用面向新企业客户的 Codex 免费期吸引用户。",
+      "impact": "agent 时代会放大订阅制的经济问题。过去按人头卖座席的 SaaS 模型，在自动化任务高频运行后可能不得不转向 credit、限额、阶梯价和企业治理包。",
+      "action": "建议持续追踪各家对 coding agent 的计费口径：按人、按 token、按任务、按并发 agent，还是按企业治理功能收费。",
+      "url": "https://www.axios.com/2026/05/14/anthropic-claude-price-openai-tokens"
+    }
+  ],
+  "trends": [
+    "AI Coding 的入口正在从 IDE 插件扩展到手机、桌面 App、CLI 和代码托管平台。",
+    "成本治理成为 coding agent 落地的第一约束，token 上限和任务预算会成为团队标配。",
+    "平台方正在争夺 agent 工作流控制权，GitHub、OpenAI、Anthropic 之间的竞争会影响企业采购策略。"
+  ],
+  "publicTopics": [
+    {
+      "priority": "首推",
+      "title": "一个月烧掉 130 万美元：AI 写代码为什么可能比程序员更贵？",
+      "angle": "从 OpenClaw 的 token 消耗切入，讲 coding agent 的真实成本、任务失控、预算上限和企业试点方法。",
+      "reason": "数字冲击力强，标题天然有传播性，而且能把技术新闻转成普通读者也能懂的商业故事。"
+    },
+    {
+      "priority": "强推荐",
+      "title": "Codex 上手机，程序员开始远程指挥 AI 改代码？",
+      "angle": "用 Codex 进入 ChatGPT 移动端做主线，解释 coding agent 从桌面工具变成异步研发任务流。",
+      "reason": "产品形态变化直观，适合写成趋势判断，能吸引开发者和产品经理。"
+    },
+    {
+      "priority": "强推荐",
+      "title": "GitHub Copilot App 来了：AI 编程助手正在变成开发者操作系统",
+      "angle": "围绕 GitHub Copilot App 技术预览，讲 Issue、PR、CLI、桌面端如何合并为 agent 控制台。",
+      "reason": "GitHub 是开发者基础设施，读者容易代入，也适合做后续实测系列。"
+    },
+    {
+      "priority": "可追踪",
+      "title": "Microsoft 为什么要把内部开发者推向 Copilot CLI？",
+      "angle": "从 Claude Code 许可调整传闻切入，讲大厂生态锁定、采购成本和多模型策略的冲突。",
+      "reason": "争议性强，但需要标注消息来源和不确定性，适合做深度分析而不是快讯。"
+    }
+  ],
+  "watch": [
+    "OpenAI 是否公布 Codex 移动端的权限、审查、diff 和回滚能力。",
+    "GitHub Copilot App 技术预览是否开放给更多企业用户，以及是否支持 Windows、macOS、Linux 的完整体验。",
+    "Anthropic、OpenAI、GitHub 是否进一步调整 agent 计费、credit 或并发限制。",
+    "社区是否出现更多关于 agent 成本、误改代码、权限过大和测试失败的真实复盘。"
+  ]
+}

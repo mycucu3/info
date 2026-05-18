@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Coding 行业日报</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #18202b;
+        --muted: #647184;
+        --line: #d9e1ea;
+        --paper: #f6f8fb;
+        --panel: #ffffff;
+        --teal: #007f7a;
+        --teal-soft: #dff5f2;
+        --blue: #2c5bff;
+        --amber: #a96800;
+        --amber-soft: #fff0c7;
+        --rose: #b3325f;
+        --rose-soft: #ffe3ec;
+        --green: #2f7d45;
+        --shadow: 0 18px 50px rgba(20, 32, 48, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "Microsoft YaHei", sans-serif;
+        letter-spacing: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(246, 248, 251, 0.92), rgba(246, 248, 251, 0.98)),
+          url("data:image/svg+xml,%3Csvg width='1200' height='720' viewBox='0 0 1200 720' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23c9d5e2' stroke-width='1'%3E%3Cpath d='M0 132h1200M0 278h1200M0 424h1200M0 570h1200M150 0v720M340 0v720M530 0v720M720 0v720M910 0v720M1100 0v720' opacity='.45'/%3E%3Cpath d='M150 132 340 278 530 132 720 424 910 278 1100 570' opacity='.55'/%3E%3Cpath d='M150 570 340 424 530 570 720 278 910 424 1100 132' opacity='.32'/%3E%3C/g%3E%3Cg fill='%23007f7a' opacity='.42'%3E%3Ccircle cx='150' cy='132' r='5'/%3E%3Ccircle cx='340' cy='278' r='5'/%3E%3Ccircle cx='530' cy='132' r='5'/%3E%3Ccircle cx='720' cy='424' r='5'/%3E%3Ccircle cx='910' cy='278' r='5'/%3E%3Ccircle cx='1100' cy='570' r='5'/%3E%3C/g%3E%3C/svg%3E");
+        background-size: cover;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .mark {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid rgba(0, 127, 122, 0.24);
+        border-radius: 8px;
+        color: var(--teal);
+        background: #fff;
+        box-shadow: 0 8px 26px rgba(0, 127, 122, 0.12);
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 15px;
+        line-height: 1.2;
+      }
+
+      .brand span {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .icon-button {
+        display: inline-grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+      }
+
+      .icon-button:hover {
+        border-color: #aab8c8;
+        background: #fff;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
+        gap: 20px;
+        align-items: stretch;
+        min-height: 360px;
+        padding: 18px 0 22px;
+      }
+
+      .hero-copy {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(22px, 4vw, 44px);
+        border: 1px solid rgba(217, 225, 234, 0.78);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        color: var(--teal);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 26px;
+        height: 2px;
+        background: var(--teal);
+      }
+
+      h1 {
+        max-width: 780px;
+        margin: 0;
+        font-size: clamp(34px, 6vw, 72px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin: 22px 0 0;
+        color: #3d4a5d;
+        font-size: clamp(16px, 2vw, 20px);
+        line-height: 1.72;
+      }
+
+      .hero-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 30px;
+      }
+
+      .meta-tile {
+        min-width: 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .meta-tile span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .meta-tile strong {
+        display: block;
+        margin-top: 8px;
+        font-size: clamp(20px, 3vw, 30px);
+        line-height: 1;
+      }
+
+      .signal-board {
+        display: grid;
+        gap: 12px;
+        align-content: stretch;
+      }
+
+      .signal {
+        position: relative;
+        overflow: hidden;
+        min-height: 110px;
+        padding: 18px;
+        border: 1px solid rgba(217, 225, 234, 0.9);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 12px 34px rgba(20, 32, 48, 0.08);
+      }
+
+      .signal::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 5px;
+        background: var(--teal);
+      }
+
+      .signal:nth-child(2)::before {
+        background: var(--amber);
+      }
+
+      .signal:nth-child(3)::before {
+        background: var(--rose);
+      }
+
+      .signal span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .signal strong {
+        display: block;
+        margin-top: 9px;
+        font-size: 17px;
+        line-height: 1.45;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 20px;
+        align-items: start;
+        padding-bottom: 42px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 14px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .section-title span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .brief-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .brief {
+        display: grid;
+        grid-template-columns: 86px minmax(0, 1fr);
+        gap: 18px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 10px 32px rgba(20, 32, 48, 0.07);
+      }
+
+      .score {
+        display: grid;
+        width: 76px;
+        height: 76px;
+        place-items: center;
+        border: 1px solid rgba(0, 127, 122, 0.24);
+        border-radius: 8px;
+        color: var(--teal);
+        background: var(--teal-soft);
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .brief h3 {
+        margin: 0;
+        font-size: clamp(18px, 2.5vw, 24px);
+        line-height: 1.32;
+      }
+
+      .brief p {
+        margin: 12px 0 0;
+        color: #435166;
+        line-height: 1.72;
+      }
+
+      .brief-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: #4a596d;
+        background: #fff;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .tag.hot {
+        border-color: rgba(169, 104, 0, 0.26);
+        color: var(--amber);
+        background: var(--amber-soft);
+      }
+
+      .tag.risk {
+        border-color: rgba(179, 50, 95, 0.22);
+        color: var(--rose);
+        background: var(--rose-soft);
+      }
+
+      .source-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 32px;
+        margin-left: auto;
+        padding: 0 11px;
+        border: 1px solid #b8c5d5;
+        border-radius: 8px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .side {
+        display: grid;
+        gap: 14px;
+      }
+
+      .panel {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 10px 32px rgba(20, 32, 48, 0.07);
+      }
+
+      .panel h2 {
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+
+      .trend-list,
+      .watch-list,
+      .source-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .trend-list li,
+      .watch-list li,
+      .source-list li {
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        color: #435166;
+        line-height: 1.58;
+      }
+
+      .trend-list li:first-child,
+      .watch-list li:first-child,
+      .source-list li:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .heat-bars {
+        display: grid;
+        gap: 10px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 82px minmax(0, 1fr) 38px;
+        gap: 10px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .bar {
+        overflow: hidden;
+        height: 9px;
+        border-radius: 999px;
+        background: #e9eef5;
+      }
+
+      .bar span {
+        display: block;
+        width: var(--value);
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--teal), var(--blue));
+      }
+
+      .empty {
+        padding: 34px;
+        border: 1px dashed #b8c5d5;
+        border-radius: 8px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.72);
+        text-align: center;
+      }
+
+      @media (max-width: 920px) {
+        .hero,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .signal-board {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          width: min(100% - 22px, 1180px);
+        }
+
+        .topbar,
+        .topbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .actions {
+          align-self: flex-end;
+        }
+
+        .hero-copy {
+          padding: 22px;
+        }
+
+        .hero-meta,
+        .signal-board {
+          grid-template-columns: 1fr;
+        }
+
+        .brief {
+          grid-template-columns: 1fr;
+        }
+
+        .score {
+          width: 100%;
+          height: 46px;
+        }
+
+        .source-link {
+          width: 100%;
+          justify-content: center;
+          margin-left: 0;
+        }
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .topbar,
+        .source-link {
+          display: none;
+        }
+
+        .hero,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-copy,
+        .signal,
+        .brief,
+        .panel {
+          box-shadow: none;
+          background: #fff;
+        }
+      }
+
+      body {
+        color: #eef6ff;
+        background:
+          radial-gradient(circle at 12% 12%, rgba(0, 255, 209, 0.18), transparent 28%),
+          radial-gradient(circle at 82% 8%, rgba(101, 76, 255, 0.24), transparent 30%),
+          radial-gradient(circle at 72% 72%, rgba(255, 61, 129, 0.14), transparent 28%),
+          linear-gradient(135deg, #060912 0%, #10172b 46%, #07121f 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+        background-size: 52px 52px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.86), transparent 82%);
+      }
+
+      .topbar {
+        padding-top: 22px;
+      }
+
+      .mark,
+      .icon-button,
+      .meta-tile,
+      .signal,
+      .brief,
+      .panel,
+      .hero-copy {
+        border-color: rgba(140, 238, 255, 0.22);
+        background: rgba(10, 18, 34, 0.72);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(18px);
+      }
+
+      .brand strong,
+      .brief h3,
+      .section-title h2,
+      .panel h2,
+      .signal strong,
+      .meta-tile strong {
+        color: #f8fbff;
+      }
+
+      .brand span,
+      .lead,
+      .meta-tile span,
+      .section-title span,
+      .brief p,
+      .trend-list li,
+      .watch-list li,
+      .source-list li,
+      .bar-row {
+        color: #aebed3;
+      }
+
+      .mark,
+      .eyebrow {
+        color: #4dffe1;
+      }
+
+      .eyebrow::before,
+      .signal::before {
+        background: linear-gradient(180deg, #4dffe1, #6a7dff);
+        box-shadow: 0 0 24px rgba(77, 255, 225, 0.75);
+      }
+
+      h1 {
+        max-width: 860px;
+        color: #ffffff;
+        text-shadow: 0 0 36px rgba(77, 255, 225, 0.22);
+      }
+
+      .hero-copy {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-copy::after {
+        content: "";
+        position: absolute;
+        right: -90px;
+        bottom: -110px;
+        width: 280px;
+        height: 280px;
+        border: 1px solid rgba(77, 255, 225, 0.34);
+        border-radius: 50%;
+        box-shadow: inset 0 0 40px rgba(77, 255, 225, 0.12), 0 0 80px rgba(106, 125, 255, 0.18);
+      }
+
+      .icon-button,
+      .source-link {
+        color: #dce9ff;
+      }
+
+      .icon-button:hover,
+      .source-link:hover {
+        border-color: rgba(77, 255, 225, 0.74);
+        background: rgba(77, 255, 225, 0.12);
+      }
+
+      .score {
+        border-color: rgba(77, 255, 225, 0.48);
+        color: #071018;
+        background: linear-gradient(135deg, #4dffe1, #8af7ff 48%, #ffeb7a);
+        box-shadow: 0 0 32px rgba(77, 255, 225, 0.28);
+      }
+
+      .tag {
+        border-color: rgba(140, 238, 255, 0.2);
+        color: #dce9ff;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .tag.hot {
+        border-color: rgba(255, 235, 122, 0.36);
+        color: #ffeb7a;
+        background: rgba(255, 235, 122, 0.1);
+      }
+
+      .tag.risk {
+        border-color: rgba(255, 93, 151, 0.42);
+        color: #ff8ab8;
+        background: rgba(255, 93, 151, 0.12);
+      }
+
+      .bar {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .bar span {
+        background: linear-gradient(90deg, #4dffe1, #6a7dff, #ff5d97);
+        box-shadow: 0 0 18px rgba(77, 255, 225, 0.42);
+      }
+
+      .topic-picks {
+        margin: 0 0 22px;
+        padding: 20px;
+        border: 1px solid rgba(255, 235, 122, 0.28);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgba(255, 235, 122, 0.11), rgba(77, 255, 225, 0.08) 42%, rgba(106, 125, 255, 0.11));
+        box-shadow: 0 22px 70px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .topic-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .topic-card {
+        display: grid;
+        gap: 12px;
+        min-width: 0;
+        padding: 18px;
+        border: 1px solid rgba(140, 238, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(4, 10, 22, 0.58);
+      }
+
+      .topic-card strong {
+        color: #fff;
+        font-size: 18px;
+        line-height: 1.35;
+      }
+
+      .topic-card p {
+        margin: 0;
+        color: #aebed3;
+        line-height: 1.62;
+      }
+
+      .topic-rank {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: #ffeb7a;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .topic-rank span {
+        color: #061018;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #ffeb7a;
+      }
+
+      .topic-note {
+        margin: 14px 0 0;
+        color: #aebed3;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 920px) {
+        .topic-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="shell topbar">
+      <a class="brand" href="#" aria-label="AI Coding 行业日报">
+        <span class="mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M4 17V7m0 10h16M4 7h16M8 7v10m8-10v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span>
+          <strong>AI Coding 行业日报</strong>
+          <span>Signals for builders</span>
+        </span>
+      </a>
+      <div class="actions">
+        <button class="icon-button" id="refreshButton" title="重新载入数据" aria-label="重新载入数据">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <button class="icon-button" onclick="window.print()" title="打印日报" aria-label="打印日报">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M7 17H5a3 3 0 0 1-3-3v-3a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-2M7 8V3h10v5M7 14h10v7H7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero" aria-labelledby="pageTitle">
+        <div class="hero-copy">
+          <div class="eyebrow" id="dateLine">加载中</div>
+          <h1 id="pageTitle">今天最值得关注的 AI Coding 信号</h1>
+          <p class="lead" id="summaryLine">把工具更新、平台策略、社区反馈和安全风险压缩成一屏可读的行业日报。</p>
+          <div class="hero-meta" aria-label="日报指标">
+            <div class="meta-tile">
+              <span>入选信号</span>
+              <strong id="metricItems">0</strong>
+            </div>
+            <div class="meta-tile">
+              <span>综合热度</span>
+              <strong id="metricHeat">0</strong>
+            </div>
+            <div class="meta-tile">
+              <span>时间窗口</span>
+              <strong id="metricWindow">72h</strong>
+            </div>
+          </div>
+        </div>
+        <div class="signal-board" id="signalBoard" aria-label="关键判断"></div>
+      </section>
+
+      <section class="topic-picks" aria-labelledby="topicTitle">
+        <div class="section-title">
+          <div>
+            <h2 id="topicTitle">公众号选题推荐</h2>
+            <span>优先挑选“读者有决策焦虑、标题有冲突、后续能追踪”的热点</span>
+          </div>
+          <span id="topicCount">0 个选题</span>
+        </div>
+        <div class="topic-grid" id="topicGrid"></div>
+        <p class="topic-note">
+          选题判断：高热度不等于适合写公众号。更推荐能讲清“发生了什么、为什么现在重要、普通团队下一步怎么做”的热点。
+        </p>
+      </section>
+
+      <section class="layout">
+        <div>
+          <div class="section-title">
+            <h2>重点简报</h2>
+            <span id="briefCount">0 条</span>
+          </div>
+          <div class="brief-list" id="briefList"></div>
+        </div>
+
+        <aside class="side" aria-label="辅助信息">
+          <section class="panel">
+            <h2>趋势雷达</h2>
+            <ul class="trend-list" id="trendList"></ul>
+          </section>
+
+          <section class="panel">
+            <h2>热度分布</h2>
+            <div class="heat-bars" id="heatBars"></div>
+          </section>
+
+          <section class="panel">
+            <h2>继续追踪</h2>
+            <ul class="watch-list" id="watchList"></ul>
+          </section>
+
+          <section class="panel">
+            <h2>来源索引</h2>
+            <ul class="source-list" id="sourceList"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const fallbackReport = {
+        date: new Date().toISOString().slice(0, 10),
+        window: "最近 72 小时",
+        title: "今天最值得关注的 AI Coding 信号",
+        summary:
+          "面向技术决策者的 AI Coding 行业日报：把产品更新、平台动作、社区反馈和安全边界整理成可执行判断。",
+        signals: [
+          {
+            label: "主线判断",
+            text: "AI Coding 正从补全工具走向可执行任务的 agent 工作流，IDE、CLI 与代码托管平台正在重新分工。"
+          },
+          {
+            label: "采购信号",
+            text: "企业会更关心成本、审计、权限和团队治理，而不只是单次生成质量。"
+          },
+          {
+            label: "风险边界",
+            text: "自动修改代码、执行命令和访问仓库会放大安全与回滚要求，团队需要提前设定护栏。"
+          }
+        ],
+        briefs: [
+          {
+            title: "Coding agent 成为开发工具竞争的新中心",
+            score: 92,
+            source: "Official / Media",
+            date: "2026-05-18",
+            category: "agent",
+            tags: ["Agent", "IDE", "CLI"],
+            summary:
+              "多家开发工具把能力从代码补全推进到任务拆解、仓库理解、PR 修改和测试验证，说明竞争重点正在转向完整研发流程。",
+            impact:
+              "团队需要重新评估哪些任务适合交给 agent，哪些环节仍需要人工审查、测试和发布把关。",
+            action:
+              "建议按 IDE、CLI、PR 工作流三个维度做横向试用，并记录准确率、耗时、成本和回滚体验。",
+            url: "https://github.com/mycucu3/info"
+          },
+          {
+            title: "GitHub、IDE 与云端任务队列正在合并为同一条链路",
+            score: 86,
+            source: "Developer Platform",
+            date: "2026-05-18",
+            category: "platform",
+            tags: ["GitHub", "Workflow", "DevOps"],
+            summary:
+              "AI 编程助手开始深入代码托管、Issue、Pull Request 和 CI/CD，研发平台会成为 agent 执行任务的主战场。",
+            impact:
+              "这会影响团队对权限、代码所有权、分支策略和自动化测试覆盖率的要求。",
+            action:
+              "建议先挑选低风险仓库试点，把 agent 权限限定在分支和 PR 层面，避免直接触碰生产发布链路。",
+            url: "https://github.com/mycucu3/info"
+          },
+          {
+            title: "安全、隐私与审计成为 AI Coding 落地门槛",
+            score: 81,
+            source: "Security / Community",
+            date: "2026-05-18",
+            category: "risk",
+            tags: ["Security", "Governance", "Audit"],
+            summary:
+              "当 agent 能读取仓库、运行命令并提交修改时，企业关注点会从能不能用转向能不能管、能不能查、出错能不能恢复。",
+            impact:
+              "权限边界、敏感文件访问、命令执行白名单和日志留存会成为采购和内部推广的关键条件。",
+            action:
+              "建议把密钥扫描、依赖审计、变更摘要和自动测试设为 agent 提交前的固定检查。",
+            url: "https://github.com/mycucu3/info"
+          },
+          {
+            title: "社区讨论开始聚焦长期任务质量与上下文稳定性",
+            score: 74,
+            source: "Developer Community",
+            date: "2026-05-18",
+            category: "agent",
+            tags: ["Quality", "Context", "Review"],
+            summary:
+              "开发者不再只比较单次生成结果，也在讨论长任务中上下文丢失、误改文件、测试不足和修复循环成本。",
+            impact:
+              "真实生产效率取决于任务闭环质量，而不是一次回答看起来是否聪明。",
+            action:
+              "建议用真实 issue 作为评测样本，统计一次通过率、人工修正时间和引入回归的比例。",
+            url: "https://github.com/mycucu3/info"
+          }
+        ],
+        trends: [
+          "Agentic coding 的竞争重心正在从模型能力扩展到工具调用、权限控制和工程验证。",
+          "代码托管平台、IDE、CLI 与企业协作系统会逐渐形成一体化研发入口。",
+          "可审计、可回滚、可限制权限的 agent 更容易进入团队级生产环境。"
+        ],
+        publicTopics: [
+          {
+            priority: "首推",
+            title: "AI 编程从 Copilot 进入 Agent 时代，程序员到底会被替代到哪一步？",
+            angle: "用工具演进做主线，讲 IDE、CLI、PR、测试验证如何连成一条自动化研发链路。",
+            reason: "读者面广，争议感强，适合做观点型头条。"
+          },
+          {
+            priority: "强推荐",
+            title: "为什么企业真正担心的不是 AI 写代码，而是 AI 乱改代码？",
+            angle: "从权限、审计、回滚、密钥泄露和生产事故角度切入，解释 agent 落地的安全边界。",
+            reason: "适合技术管理者和团队负责人，能自然引出方法论。"
+          },
+          {
+            priority: "可追踪",
+            title: "Cursor、Claude Code、Codex、Copilot 谁更适合真实项目？",
+            angle: "不要做泛泛测评，改用真实 issue、跨文件修改、测试修复、成本和一次通过率做横评框架。",
+            reason: "搜索需求强，后续可以持续更新成系列。"
+          }
+        ],
+        watch: [
+          "新工具是否能在真实仓库里稳定完成跨文件修改和测试修复。",
+          "厂商是否公布企业级权限、审计日志、数据隔离和区域可用性细节。",
+          "社区是否集中反馈误改代码、上下文丢失、成本不可控或安全风险。"
+        ]
+      };
+
+      let report = fallbackReport;
+      const el = (id) => document.getElementById(id);
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function normalizeReport(data) {
+        const briefs = Array.isArray(data.briefs) ? data.briefs : [];
+        return {
+          ...fallbackReport,
+          ...data,
+          briefs,
+          signals: Array.isArray(data.signals) ? data.signals : fallbackReport.signals,
+          trends: Array.isArray(data.trends) ? data.trends : fallbackReport.trends,
+          publicTopics: Array.isArray(data.publicTopics) ? data.publicTopics : fallbackReport.publicTopics,
+          watch: Array.isArray(data.watch) ? data.watch : fallbackReport.watch
+        };
+      }
+
+      async function loadReport() {
+        try {
+          const response = await fetch("daily-report.json", { cache: "no-store" });
+          if (!response.ok) throw new Error("daily-report.json not found");
+          report = normalizeReport(await response.json());
+        } catch (error) {
+          report = fallbackReport;
+        }
+        render();
+      }
+
+      function averageScore(items) {
+        if (!items.length) return 0;
+        return Math.round(items.reduce((sum, item) => sum + Number(item.score || 0), 0) / items.length);
+      }
+
+      function renderHero(items) {
+        el("dateLine").textContent = `${report.date || fallbackReport.date} · ${report.window || fallbackReport.window}`;
+        el("pageTitle").textContent = report.title || fallbackReport.title;
+        el("summaryLine").textContent = report.summary || fallbackReport.summary;
+        el("metricItems").textContent = items.length;
+        el("metricHeat").textContent = `${averageScore(items)}/100`;
+        el("metricWindow").textContent = report.window || fallbackReport.window;
+        el("signalBoard").innerHTML = report.signals
+          .slice(0, 3)
+          .map(
+            (signal) => `
+              <article class="signal">
+                <span>${escapeHtml(signal.label)}</span>
+                <strong>${escapeHtml(signal.text)}</strong>
+              </article>
+            `
+          )
+          .join("");
+      }
+
+      function renderBriefs(items) {
+        el("briefCount").textContent = `${items.length} 条`;
+        if (!items.length) {
+          el("briefList").innerHTML = `<div class="empty">没有匹配的日报条目</div>`;
+          return;
+        }
+        el("briefList").innerHTML = items
+          .map((item) => {
+            const riskClass = item.category === "risk" ? "risk" : "";
+            const tagHtml = (item.tags || [])
+              .map((tag) => `<span class="tag ${riskClass}">${escapeHtml(tag)}</span>`)
+              .join("");
+            return `
+              <article class="brief">
+                <div class="score" aria-label="热度 ${Number(item.score || 0)}">${Number(item.score || 0)}</div>
+                <div>
+                  <h3>${escapeHtml(item.title)}</h3>
+                  <p>${escapeHtml(item.summary)}</p>
+                  <p><strong>影响：</strong>${escapeHtml(item.impact || "待评估")}</p>
+                  <p><strong>建议：</strong>${escapeHtml(item.action || "继续追踪官方更新和社区反馈。")}</p>
+                  <div class="brief-footer">
+                    <span class="tag hot">${escapeHtml(item.source || "Unknown")}</span>
+                    <span class="tag">${escapeHtml(item.date || report.date)}</span>
+                    ${tagHtml}
+                    <a class="source-link" href="${escapeHtml(item.url || "#")}" target="_blank" rel="noreferrer">
+                      原文
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function renderSide(items) {
+        el("trendList").innerHTML = report.trends.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+        el("watchList").innerHTML = report.watch.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+        el("sourceList").innerHTML = items
+          .map(
+            (item) => `
+              <li>
+                <a href="${escapeHtml(item.url || "#")}" target="_blank" rel="noreferrer">
+                  ${escapeHtml(item.source || "Unknown")} · ${escapeHtml(item.title)}
+                </a>
+              </li>
+            `
+          )
+          .join("");
+        el("heatBars").innerHTML = items
+          .slice(0, 5)
+          .map(
+            (item) => `
+              <div class="bar-row">
+                <span>${escapeHtml((item.tags || [item.category || "Signal"])[0])}</span>
+                <div class="bar"><span style="--value:${Math.max(0, Math.min(100, Number(item.score || 0)))}%"></span></div>
+                <strong>${Number(item.score || 0)}</strong>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      function renderPublicTopics() {
+        const topics = report.publicTopics || [];
+        el("topicCount").textContent = `${topics.length} 个选题`;
+        el("topicGrid").innerHTML = topics
+          .map(
+            (topic) => `
+              <article class="topic-card">
+                <div class="topic-rank">
+                  <span>${escapeHtml(topic.priority || "推荐")}</span>
+                  <small>PUBLIC ACCOUNT</small>
+                </div>
+                <strong>${escapeHtml(topic.title)}</strong>
+                <p><b>切入角度：</b>${escapeHtml(topic.angle || "围绕热点事实、行业影响和行动建议展开。")}</p>
+                <p><b>推荐理由：</b>${escapeHtml(topic.reason || "具备讨论度、传播钩子和后续追踪价值。")}</p>
+              </article>
+            `
+          )
+          .join("");
+      }
+
+      function render() {
+        const items = report.briefs;
+        renderHero(items);
+        renderPublicTopics();
+        renderBriefs(items);
+        renderSide(items);
+      }
+
+      el("refreshButton").addEventListener("click", loadReport);
+      loadReport();
+    </script>
+  </body>
+</html>

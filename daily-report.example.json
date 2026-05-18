@@ -1,0 +1,54 @@
+{
+  "date": "2026-05-18",
+  "window": "最近 72 小时",
+  "title": "今天最值得关注的 AI Coding 信号",
+  "summary": "面向技术决策者的 AI Coding 行业日报：把产品更新、平台动作、社区反馈和安全边界整理成可执行判断。",
+  "signals": [
+    {
+      "label": "主线判断",
+      "text": "AI Coding 正从补全工具走向可执行任务的 agent 工作流。"
+    },
+    {
+      "label": "采购信号",
+      "text": "企业会更关心成本、审计、权限和团队治理。"
+    },
+    {
+      "label": "风险边界",
+      "text": "自动修改代码和执行命令会放大安全与回滚要求。"
+    }
+  ],
+  "briefs": [
+    {
+      "title": "Coding agent 成为开发工具竞争的新中心",
+      "score": 92,
+      "source": "Official / Media",
+      "date": "2026-05-18",
+      "category": "agent",
+      "tags": ["Agent", "IDE", "CLI"],
+      "summary": "多家开发工具把能力从代码补全推进到任务拆解、仓库理解、PR 修改和测试验证。",
+      "impact": "团队需要重新评估哪些任务适合交给 agent，哪些环节仍需要人工审查、测试和发布把关。",
+      "action": "建议按 IDE、CLI、PR 工作流三个维度做横向试用。",
+      "url": "https://github.com/mycucu3/info"
+    }
+  ],
+  "trends": [
+    "Agentic coding 的竞争重心正在从模型能力扩展到工具调用、权限控制和工程验证。"
+  ],
+  "publicTopics": [
+    {
+      "priority": "首推",
+      "title": "AI 编程从 Copilot 进入 Agent 时代，程序员到底会被替代到哪一步？",
+      "angle": "用工具演进做主线，讲 IDE、CLI、PR、测试验证如何连成一条自动化研发链路。",
+      "reason": "读者面广，争议感强，适合做观点型头条。"
+    },
+    {
+      "priority": "强推荐",
+      "title": "为什么企业真正担心的不是 AI 写代码，而是 AI 乱改代码？",
+      "angle": "从权限、审计、回滚、密钥泄露和生产事故角度切入，解释 agent 落地的安全边界。",
+      "reason": "适合技术管理者和团队负责人，能自然引出方法论。"
+    }
+  ],
+  "watch": [
+    "新工具是否能在真实仓库里稳定完成跨文件修改和测试修复。"
+  ]
+}
