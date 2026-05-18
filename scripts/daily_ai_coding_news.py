@@ -6,6 +6,7 @@ import hmac
 import html
 import json
 import os
+import re
 import smtplib
 import ssl
 import textwrap
@@ -39,7 +40,7 @@ def load_config() -> dict:
 def fetch_url(url: str, timeout: int = 20) -> bytes:
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "ai-coding-news-radar/1.1 (+https://github.com/)"},
+        headers={"User-Agent": "ai-coding-news-radar/1.2 (+https://github.com/)"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as response:
         return response.read()
@@ -52,7 +53,7 @@ def post_json(url: str, payload: dict, timeout: int = 20) -> dict:
         data=data,
         headers={
             "Content-Type": "application/json; charset=utf-8",
-            "User-Agent": "ai-coding-news-radar/1.1 (+https://github.com/)",
+            "User-Agent": "ai-coding-news-radar/1.2 (+https://github.com/)",
         },
         method="POST",
     )
@@ -80,19 +81,12 @@ def parse_datetime(value: str | None) -> datetime | None:
 
 
 def google_news_rss(query: str) -> list[NewsItem]:
-    params = urllib.parse.urlencode(
-        {
-            "q": query,
-            "hl": "en-US",
-            "gl": "US",
-            "ceid": "US:en",
-        }
-    )
+    params = urllib.parse.urlencode({"q": query, "hl": "en-US", "gl": "US", "ceid": "US:en"})
     raw = fetch_url(f"https://news.google.com/rss/search?{params}")
     root = ET.fromstring(raw)
     items: list[NewsItem] = []
 
-    for node in root.findall("./channel/item")[:15]:
+    for node in root.findall("./channel/item")[:12]:
         title = html.unescape(node.findtext("title", default="")).strip()
         link = node.findtext("link", default="").strip()
         published = parse_datetime(node.findtext("pubDate"))
@@ -110,12 +104,15 @@ def hacker_news_search(query: str) -> list[NewsItem]:
     items: list[NewsItem] = []
 
     for hit in data.get("hits", []):
+        points = hit.get("points") or 0
+        comments = hit.get("num_comments") or 0
+        if points < 3 and comments < 2:
+            continue
+
         title = hit.get("title") or hit.get("story_title") or ""
         link = hit.get("url") or f"https://news.ycombinator.com/item?id={hit.get('objectID')}"
         published = parse_datetime(hit.get("created_at"))
-        points = hit.get("points") or 0
-        comments = hit.get("num_comments") or 0
-        summary = f"Hacker News signal: {points} points, {comments} comments"
+        summary = f"Hacker News 社区讨论：{points} points，{comments} comments"
         if title and link:
             items.append(NewsItem(title=title, link=link, source="Hacker News", published=published, summary=summary))
     return items
@@ -147,7 +144,7 @@ def score_item(item: NewsItem, config: dict) -> int:
         "ai",
     ]
 
-    score = 20
+    score = 18
     score += sum(8 for name in tracked_entities if name in text)
     score += sum(4 for term in important_terms if term in text)
 
@@ -162,11 +159,11 @@ def score_item(item: NewsItem, config: dict) -> int:
 
     source = item.source.lower()
     if source in {"openai", "github blog", "anthropic", "microsoft", "google developers"}:
-        score += 20
-    elif source in {"techcrunch", "the verge", "reuters", "axios", "arstechnica", "wired"}:
-        score += 14
+        score += 22
+    elif source in {"techcrunch", "the verge", "reuters", "axios", "arstechnica", "wired", "venturebeat", "infoq"}:
+        score += 16
     elif item.source == "Hacker News":
-        score += 10
+        score += 7
 
     return min(score, 100)
 
@@ -193,55 +190,110 @@ def collect_news(config: dict) -> list[NewsItem]:
         if key not in deduped or item.score > deduped[key].score:
             deduped[key] = item
 
-    return sorted(deduped.values(), key=lambda item: item.score, reverse=True)[:12]
+    ranked = sorted(deduped.values(), key=lambda item: item.score, reverse=True)
+    strong = [item for item in ranked if item.score >= 58]
+    return (strong or ranked)[:10]
 
 
 def format_date(value: datetime | None) -> str:
     if not value:
-        return "unknown date"
+        return "未知日期"
     return value.astimezone(timezone.utc).strftime("%Y-%m-%d")
 
 
 def clean_summary(item: NewsItem) -> str:
     summary = html.unescape(item.summary or "").replace("\n", " ")
+    summary = re.sub(r"<[^>]+>", " ", summary)
     summary = " ".join(summary.split())
     if not summary:
-        return "该事件在多个 AI coding/科技新闻查询中出现。"
-    return textwrap.shorten(summary, width=180, placeholder="...")
+        return "该事件在 AI coding 与科技新闻信号中出现，值得作为候选趋势继续观察。"
+    return textwrap.shorten(summary, width=150, placeholder="...")
+
+
+def impact_line(item: NewsItem) -> str:
+    text = f"{item.title} {item.summary}".lower()
+    if any(term in text for term in ["security", "vulnerability", "breach", "attack"]):
+        return "安全与权限边界可能变化，适合关注企业落地风险。"
+    if any(term in text for term in ["price", "pricing", "cost", "subscription"]):
+        return "可能影响团队工具成本和采购决策。"
+    if any(term in text for term in ["agent", "copilot", "codex", "claude code", "cursor", "windsurf"]):
+        return "可能影响开发者如何把任务交给 AI agent 执行。"
+    if any(term in text for term in ["model", "open source", "benchmark"]):
+        return "可能影响模型选择、代码质量预期和技术路线。"
+    return "可能影响 AI 工具选择、开发流程或技术决策。"
+
+
+def heat_label(score: int) -> str:
+    if score >= 85:
+        return "高热度"
+    if score >= 70:
+        return "值得看"
+    return "观察中"
+
+
+def trend_snapshot(items: list[NewsItem]) -> list[str]:
+    blob = " ".join(f"{item.title} {item.summary}" for item in items).lower()
+    trends: list[str] = []
+    if any(term in blob for term in ["agent", "copilot", "codex", "claude code", "cursor", "windsurf"]):
+        trends.append("Agentic coding 继续从补全工具走向可执行任务的工作流。")
+    if any(term in blob for term in ["cli", "terminal", "github", "pull request", "repo"]):
+        trends.append("代码托管、CLI 与 PR 流程正在成为 AI coding 的主战场。")
+    if any(term in blob for term in ["security", "permission", "privacy", "enterprise"]):
+        trends.append("企业落地会更关注权限、安全、审计和可控性。")
+    if not trends:
+        trends.append("今天的信号偏分散，建议关注高分条目的后续扩散情况。")
+    return trends[:3]
 
 
 def build_report(items: list[NewsItem]) -> str:
     today = datetime.now().strftime("%Y-%m-%d")
+    top_items = items[:5]
+    avg_score = round(sum(item.score for item in top_items) / len(top_items)) if top_items else 0
+
     lines = [
-        "# AI Coding 与科技新闻雷达",
-        f"日期：{today}",
+        "# AI Coding Daily Radar",
         "",
-        "## 今日最值得看",
+        f"**日期**：{today}",
+        f"**信号数**：{len(items)} 条候选热点",
+        f"**平均热度**：{avg_score}/100",
+        "",
+        "> 自动抓取 AI coding 与科技新闻，按新鲜度、来源可信度、开发者影响和趋势代表性排序。",
+        "",
+        "## 今日判断",
     ]
 
-    for idx, item in enumerate(items[:6], start=1):
+    for trend in trend_snapshot(items):
+        lines.append(f"- {trend}")
+
+    lines.extend(["", "## 精选热点"])
+
+    for idx, item in enumerate(top_items, start=1):
         lines.extend(
             [
-                f"{idx}. {item.title}",
-                f"   - 发生了什么：{clean_summary(item)}",
-                "   - 为什么重要：可能影响 AI coding 工具选择、开发者工作流、团队自动化或技术决策。",
-                f"   - 热度分：{item.score}/100",
-                f"   - 来源：{item.source}，{format_date(item.published)}",
-                f"   - 链接：{item.link}",
                 "",
+                f"### {idx}. {item.title}",
+                "",
+                f"`{heat_label(item.score)}` `{item.score}/100` `{item.source}` `{format_date(item.published)}`",
+                "",
+                f"**发生了什么**：{clean_summary(item)}",
+                "",
+                f"**为什么重要**：{impact_line(item)}",
+                "",
+                f"**原文**：[{item.source}]({item.link})",
             ]
         )
 
     lines.extend(
         [
-            "## AI Coding 趋势",
-            "- Coding agent 正在从编辑器内补全，走向异步任务、CLI、移动端监督和企业权限治理。",
-            "- 对团队来说，接下来更值得关注的是可靠性、上下文管理、成本控制、代码安全和审计能力。",
             "",
-            "## 值得继续追踪",
-            "- 新模型是否改变代码生成质量和价格。",
-            "- GitHub、OpenAI、Anthropic、Cursor、Windsurf 等产品是否推出新的 agent 工作流。",
-            "- 社区是否集中反馈权限、安全、误改代码、长任务失败等问题。",
+            "## 继续追踪",
+            "",
+            "- 新模型或 coding agent 是否改变真实开发效率。",
+            "- 工具是否进入 CLI、GitHub、PR、CI/CD 等核心开发链路。",
+            "- 社区是否集中反馈上下文丢失、误改代码、权限过大或成本不可控。",
+            "",
+            "---",
+            "由 GitHub Actions 每天 09:00 自动生成并推送。",
         ]
     )
     return "\n".join(lines)
@@ -281,13 +333,7 @@ def send_wechat(subject: str, body: str) -> None:
     if len(content) > 3900:
         content = content[:3850] + "\n\n...内容过长，已截断。"
 
-    result = post_json(
-        webhook_url,
-        {
-            "msgtype": "markdown",
-            "markdown": {"content": content},
-        },
-    )
+    result = post_json(webhook_url, {"msgtype": "markdown", "markdown": {"content": content}})
     if result.get("errcode", 0) != 0:
         raise RuntimeError(f"WeChat webhook failed: {result}")
 
@@ -320,13 +366,7 @@ def send_dingtalk(subject: str, body: str) -> None:
 
     result = post_json(
         dingtalk_webhook_url(),
-        {
-            "msgtype": "markdown",
-            "markdown": {
-                "title": subject,
-                "text": content,
-            },
-        },
+        {"msgtype": "markdown", "markdown": {"title": subject, "text": content}},
     )
     if result.get("errcode", 0) != 0:
         raise RuntimeError(f"DingTalk webhook failed: {result}")
@@ -343,12 +383,7 @@ def send_pushplus(subject: str, body: str) -> None:
 
     result = post_json(
         "https://www.pushplus.plus/send",
-        {
-            "token": token,
-            "title": subject,
-            "content": body,
-            "template": "markdown",
-        },
+        {"token": token, "title": subject, "content": body, "template": "markdown"},
     )
     if result.get("code") != 200:
         raise RuntimeError(f"PushPlus failed: {result}")
@@ -362,7 +397,7 @@ def main() -> None:
     config = load_config()
     items = collect_news(config)
     report = build_report(items)
-    subject = f"AI Coding 与科技新闻雷达 - {datetime.now().strftime('%Y-%m-%d')}"
+    subject = f"AI Coding Daily Radar - {datetime.now().strftime('%Y-%m-%d')}"
 
     if args.dry_run:
         print(report)
