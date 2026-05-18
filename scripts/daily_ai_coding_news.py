@@ -1,5 +1,8 @@
 import argparse
+import base64
 import email.utils
+import hashlib
+import hmac
 import html
 import json
 import os
@@ -289,6 +292,46 @@ def send_wechat(subject: str, body: str) -> None:
         raise RuntimeError(f"WeChat webhook failed: {result}")
 
 
+def has_dingtalk_config() -> bool:
+    return bool(os.environ.get("DINGTALK_WEBHOOK_URL"))
+
+
+def dingtalk_webhook_url() -> str:
+    webhook_url = os.environ.get("DINGTALK_WEBHOOK_URL")
+    if not webhook_url:
+        raise RuntimeError("DingTalk is not configured. Set DINGTALK_WEBHOOK_URL.")
+
+    secret = os.environ.get("DINGTALK_SECRET")
+    if not secret:
+        return webhook_url
+
+    timestamp = str(round(datetime.now().timestamp() * 1000))
+    string_to_sign = f"{timestamp}\n{secret}".encode("utf-8")
+    digest = hmac.new(secret.encode("utf-8"), string_to_sign, digestmod=hashlib.sha256).digest()
+    sign = urllib.parse.quote_plus(base64.b64encode(digest).decode("utf-8"))
+    separator = "&" if "?" in webhook_url else "?"
+    return f"{webhook_url}{separator}timestamp={timestamp}&sign={sign}"
+
+
+def send_dingtalk(subject: str, body: str) -> None:
+    content = f"### {subject}\n\n{body}"
+    if len(content) > 18000:
+        content = content[:17900] + "\n\n...内容过长，已截断。"
+
+    result = post_json(
+        dingtalk_webhook_url(),
+        {
+            "msgtype": "markdown",
+            "markdown": {
+                "title": subject,
+                "text": content,
+            },
+        },
+    )
+    if result.get("errcode", 0) != 0:
+        raise RuntimeError(f"DingTalk webhook failed: {result}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="Print the report instead of sending.")
@@ -307,12 +350,15 @@ def main() -> None:
     if has_wechat_config():
         send_wechat(subject, report)
         sent_to.append("WeChat")
+    if has_dingtalk_config():
+        send_dingtalk(subject, report)
+        sent_to.append("DingTalk")
     if has_email_config():
         send_email(subject, report)
         sent_to.append("email")
 
     if not sent_to:
-        raise RuntimeError("No delivery channel configured. Set WECHAT_WEBHOOK_URL or full SMTP email secrets.")
+        raise RuntimeError("No delivery channel configured. Set DINGTALK_WEBHOOK_URL, WECHAT_WEBHOOK_URL, or full SMTP email secrets.")
 
     print(f"Sent report with {len(items)} items to {', '.join(sent_to)}.")
 
