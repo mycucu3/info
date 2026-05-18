@@ -1,0 +1,58 @@
+{
+  "name": "ai-coding-news-radar",
+  "language": "zh-CN",
+  "default_time_window_hours": 72,
+  "topics": [
+    "AI coding agents",
+    "developer tools",
+    "software engineering automation",
+    "technology news"
+  ],
+  "tracked_entities": [
+    "OpenAI Codex",
+    "GitHub Copilot",
+    "Claude Code",
+    "Cursor",
+    "Windsurf",
+    "Gemini Code Assist",
+    "JetBrains AI",
+    "Devin",
+    "Replit Agent"
+  ],
+  "source_priority": [
+    "official",
+    "tier_one_media",
+    "developer_community",
+    "research",
+    "secondary_media"
+  ],
+  "scoring": {
+    "freshness": 25,
+    "source_credibility": 20,
+    "developer_impact": 25,
+    "distribution_signal": 15,
+    "trend_representativeness": 15
+  },
+  "verification_rules": [
+    "Prefer official sources for release, pricing, availability, and model-name claims.",
+    "Use at least two independent sources for major non-official claims.",
+    "Mark rumors and community-only complaints explicitly.",
+    "Deduplicate by event, not by headline."
+  ],
+  "output_sections": [
+    "今日最值得看",
+    "AI Coding 趋势",
+    "科技新闻速览",
+    "值得继续追踪"
+  ],
+  "queries": [
+    "\"AI coding agent\" OR \"coding agent\" latest",
+    "OpenAI Codex GitHub Copilot Claude Code Cursor Windsurf latest",
+    "site:github.blog Copilot coding agent changelog",
+    "site:openai.com Codex coding agent",
+    "site:anthropic.com Claude Code",
+    "Hacker News AI coding agents",
+    "GitHub trending AI coding developer tools",
+    "latest technology news AI developer tools cloud security chips"
+  ]
+}
