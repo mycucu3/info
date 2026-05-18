@@ -332,6 +332,28 @@ def send_dingtalk(subject: str, body: str) -> None:
         raise RuntimeError(f"DingTalk webhook failed: {result}")
 
 
+def has_pushplus_config() -> bool:
+    return bool(os.environ.get("PUSHPLUS_TOKEN"))
+
+
+def send_pushplus(subject: str, body: str) -> None:
+    token = os.environ.get("PUSHPLUS_TOKEN")
+    if not token:
+        raise RuntimeError("PushPlus is not configured. Set PUSHPLUS_TOKEN.")
+
+    result = post_json(
+        "https://www.pushplus.plus/send",
+        {
+            "token": token,
+            "title": subject,
+            "content": body,
+            "template": "markdown",
+        },
+    )
+    if result.get("code") != 200:
+        raise RuntimeError(f"PushPlus failed: {result}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="Print the report instead of sending.")
@@ -353,12 +375,15 @@ def main() -> None:
     if has_dingtalk_config():
         send_dingtalk(subject, report)
         sent_to.append("DingTalk")
+    if has_pushplus_config():
+        send_pushplus(subject, report)
+        sent_to.append("PushPlus")
     if has_email_config():
         send_email(subject, report)
         sent_to.append("email")
 
     if not sent_to:
-        raise RuntimeError("No delivery channel configured. Set DINGTALK_WEBHOOK_URL, WECHAT_WEBHOOK_URL, or full SMTP email secrets.")
+        raise RuntimeError("No delivery channel configured. Set PUSHPLUS_TOKEN, DINGTALK_WEBHOOK_URL, WECHAT_WEBHOOK_URL, or full SMTP email secrets.")
 
     print(f"Sent report with {len(items)} items to {', '.join(sent_to)}.")
 
