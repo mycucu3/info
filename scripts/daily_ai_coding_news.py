@@ -40,7 +40,7 @@ def load_config() -> dict:
 def fetch_url(url: str, timeout: int = 20) -> bytes:
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "ai-coding-news-radar/1.2 (+https://github.com/)"},
+        headers={"User-Agent": "ai-coding-news-radar/1.3 (+https://github.com/)"},
     )
     with urllib.request.urlopen(req, timeout=timeout) as response:
         return response.read()
@@ -53,7 +53,7 @@ def post_json(url: str, payload: dict, timeout: int = 20) -> dict:
         data=data,
         headers={
             "Content-Type": "application/json; charset=utf-8",
-            "User-Agent": "ai-coding-news-radar/1.2 (+https://github.com/)",
+            "User-Agent": "ai-coding-news-radar/1.3 (+https://github.com/)",
         },
         method="POST",
     )
@@ -192,7 +192,12 @@ def collect_news(config: dict) -> list[NewsItem]:
 
     ranked = sorted(deduped.values(), key=lambda item: item.score, reverse=True)
     strong = [item for item in ranked if item.score >= 58]
-    return (strong or ranked)[:10]
+    if len(strong) >= 5:
+        return strong[:10]
+
+    strong_keys = {normalize_key(item) for item in strong}
+    fillers = [item for item in ranked if normalize_key(item) not in strong_keys]
+    return (strong + fillers)[:10]
 
 
 def format_date(value: datetime | None) -> str:
@@ -205,9 +210,45 @@ def clean_summary(item: NewsItem) -> str:
     summary = html.unescape(item.summary or "").replace("\n", " ")
     summary = re.sub(r"<[^>]+>", " ", summary)
     summary = " ".join(summary.split())
+    if item.source == "Hacker News" and any(
+        term in item.title.lower() for term in ["copilot", "terraform", "claude code", "codex", "cursor", "windsurf"]
+    ):
+        return title_based_summary(item)
+    title_words = set(re.findall(r"[a-zA-Z]{4,}", item.title.lower()))
+    summary_words = set(re.findall(r"[a-zA-Z]{4,}", summary.lower()))
+    if len(title_words) >= 4 and len(title_words - summary_words) <= 1:
+        return title_based_summary(item)
     if not summary:
-        return "该事件在 AI coding 与科技新闻信号中出现，值得作为候选趋势继续观察。"
-    return textwrap.shorten(summary, width=150, placeholder="...")
+        return title_based_summary(item)
+    return textwrap.shorten(summary, width=220, placeholder="...")
+
+
+def title_based_summary(item: NewsItem) -> str:
+    text = item.title.lower()
+    if "sandbox" in text and "codex" in text and "windows" in text:
+        return "OpenAI 讨论 Codex 在 Windows 上运行时需要的安全沙箱能力，重点是让 coding agent 能执行任务，同时限制文件、命令和系统权限风险。"
+    if "cursor" in text and "claude code" in text and "codex" in text:
+        return "文章把 Cursor、Claude Code、Codex 放在同一个 AI coding stack 里比较，核心信号是开发者工具正在融合 IDE、CLI、agent 和代码仓库工作流。"
+    if "terraform" in text and ("insecure" in text or "expensive" in text):
+        return "社区在讨论如何阻止 AI coding agent 生成或提交不安全、成本过高的 Terraform 配置，焦点是基础设施代码的安全门禁。"
+    if "copilot" in text and "vs code" in text:
+        return "这条内容关注 GitHub Copilot 在 VS Code 背后的 coding harness，说明 AI 编程助手正在依赖更完整的工具调用、上下文和执行框架。"
+    if item.source == "Hacker News":
+        return item.summary or "Hacker News 社区出现相关讨论，说明开发者正在主动比较工具体验和真实可用性。"
+    return "该事件在 AI coding 与科技新闻信号中出现，值得作为候选趋势继续观察。"
+
+
+def conclusion_line(item: NewsItem) -> str:
+    text = f"{item.title} {item.summary}".lower()
+    if any(term in text for term in ["codex", "copilot", "claude code", "cursor", "windsurf"]):
+        return "AI coding 工具的竞争正在从“写代码”转向“代理式完成任务”。"
+    if any(term in text for term in ["security", "vulnerability", "breach", "attack"]):
+        return "这是一条偏安全风险的信号，适合优先评估对研发流程的影响。"
+    if any(term in text for term in ["model", "benchmark", "open source"]):
+        return "这是一条模型或开源生态信号，可能影响后续工具选型。"
+    if item.source == "Hacker News":
+        return "这是开发者社区正在讨论的信号，适合观察是否继续扩散。"
+    return "这是一条值得纳入 AI coding 观察清单的技术信号。"
 
 
 def impact_line(item: NewsItem) -> str:
@@ -221,6 +262,17 @@ def impact_line(item: NewsItem) -> str:
     if any(term in text for term in ["model", "open source", "benchmark"]):
         return "可能影响模型选择、代码质量预期和技术路线。"
     return "可能影响 AI 工具选择、开发流程或技术决策。"
+
+
+def action_line(item: NewsItem) -> str:
+    text = f"{item.title} {item.summary}".lower()
+    if any(term in text for term in ["agent", "copilot", "codex", "claude code", "cursor", "windsurf"]):
+        return "对照自己的 IDE、CLI、PR 工作流，判断是否值得试用或替换。"
+    if any(term in text for term in ["security", "permission", "privacy"]):
+        return "关注权限、数据边界、日志审计和企业策略是否需要调整。"
+    if any(term in text for term in ["price", "pricing", "cost"]):
+        return "记录价格和用量限制，避免团队规模扩大后成本失控。"
+    return "先加入观察清单，等出现官方更新、社区复盘或更多报道后再决策。"
 
 
 def heat_label(score: int) -> str:
@@ -257,7 +309,7 @@ def build_report(items: list[NewsItem]) -> str:
         f"**信号数**：{len(items)} 条候选热点",
         f"**平均热度**：{avg_score}/100",
         "",
-        "> 自动抓取 AI coding 与科技新闻，按新鲜度、来源可信度、开发者影响和趋势代表性排序。",
+        "> 无需打开链接版：每条热点直接给结论、核心内容、影响和下一步动作。",
         "",
         "## 今日判断",
     ]
@@ -275,11 +327,13 @@ def build_report(items: list[NewsItem]) -> str:
                 "",
                 f"`{heat_label(item.score)}` `{item.score}/100` `{item.source}` `{format_date(item.published)}`",
                 "",
-                f"**发生了什么**：{clean_summary(item)}",
+                f"**一句话结论**：{conclusion_line(item)}",
+                "",
+                f"**核心内容**：{clean_summary(item)}",
                 "",
                 f"**为什么重要**：{impact_line(item)}",
                 "",
-                f"**原文**：[{item.source}]({item.link})",
+                f"**下一步**：{action_line(item)}",
             ]
         )
 
@@ -292,10 +346,14 @@ def build_report(items: list[NewsItem]) -> str:
             "- 工具是否进入 CLI、GitHub、PR、CI/CD 等核心开发链路。",
             "- 社区是否集中反馈上下文丢失、误改代码、权限过大或成本不可控。",
             "",
-            "---",
-            "由 GitHub Actions 每天 09:00 自动生成并推送。",
+            "## 来源索引",
+            "",
         ]
     )
+    for idx, item in enumerate(top_items, start=1):
+        lines.append(f"{idx}. {item.source}：{item.title}")
+
+    lines.extend(["", "---", "由 GitHub Actions 每天 09:00 自动生成并推送。"])
     return "\n".join(lines)
 
 
