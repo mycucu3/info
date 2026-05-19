@@ -26,7 +26,7 @@
 | ---------------- | ------------------- |
 | `PUSHPLUS_TOKEN` | 你的 PushPlus token |
 
-配置后进入 `Actions -> Daily AI Coding News -> Run workflow` 手动测试一次。测试通过后，会每天北京时间 09:00 自动推送到微信。
+配置后进入 `Actions -> Daily AI Coding News -> Run workflow` 手动测试一次。测试通过后，会每天北京时间 09:13 自动推送到微信。
 
 ## 钉钉推送
 
@@ -84,7 +84,7 @@ python scripts/daily_ai_coding_news.py --dry-run
 `.github/workflows/daily-ai-coding-news.yml` 默认配置：
 
 ```yaml
-- cron: "0 1 * * *"
+- cron: "13 1 * * *"
 ```
 
-GitHub Actions 使用 UTC 时间，这表示北京时间每天 09:00。
+GitHub Actions 使用 UTC 时间，这表示北京时间每天 09:13。避开整点可以降低 GitHub 定时任务延迟或被丢弃的概率。

@@ -2,8 +2,9 @@ name: Daily AI Coding News
 
 on:
   schedule:
-    # GitHub Actions uses UTC. 01:00 UTC is 09:00 in Asia/Shanghai.
-    - cron: "0 1 * * *"
+    # GitHub Actions uses UTC. 01:13 UTC is 09:13 in Asia/Shanghai.
+    # Avoid the top of the hour, where scheduled workflows are more likely to be delayed or dropped.
+    - cron: "13 1 * * *"
   workflow_dispatch:
 
 jobs:
